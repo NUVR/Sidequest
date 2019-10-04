@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using GoogleARCore;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,13 +11,13 @@ public class LocationTracker : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        LocationGetter();
+        RequestLocationPermission();
+        StartCoroutine(LocationGetter());
     }
 
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("What");
     }
 
     IEnumerator LocationGetter()
@@ -26,6 +27,10 @@ public class LocationTracker : MonoBehaviour
         {
             Debug.LogError("No location service found");
             yield break;
+        }
+        else if (Input.location.status != LocationServiceStatus.Running)
+        {
+            Debug.Log("Starting...");
         }
 
         // Start service before querying location
@@ -38,7 +43,7 @@ public class LocationTracker : MonoBehaviour
             MaxLocationServiceWait--;
         }
 
-        // Service didn't initialize in 20 seconds
+        // Service didn't initialize
         if (MaxLocationServiceWait < 1)
         {
             Debug.LogError("Timed out");
@@ -59,5 +64,10 @@ public class LocationTracker : MonoBehaviour
 
         // Stop service if there is no need to query location updates continuously
         Input.location.Stop();
+    }
+
+    void RequestLocationPermission()
+    {
+        AndroidPermissionsManager.RequestPermission("android.permission.ACCESS_FINE_LOCATION");
     }
 }
