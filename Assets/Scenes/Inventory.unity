@@ -336,7 +336,7 @@ GameObject:
   - component: {fileID: 220706082}
   - component: {fileID: 220706081}
   m_Layer: 5
-  m_Name: Button
+  m_Name: NavigationButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -474,7 +474,7 @@ GameObject:
   - component: {fileID: 278103381}
   - component: {fileID: 278103380}
   m_Layer: 5
-  m_Name: Text
+  m_Name: Distance
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1244,6 +1244,7 @@ GameObject:
   - component: {fileID: 1016509354}
   - component: {fileID: 1016509356}
   - component: {fileID: 1016509355}
+  - component: {fileID: 1016509357}
   m_Layer: 5
   m_Name: Panel
   m_TagString: Untagged
@@ -1307,6 +1308,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1016509353}
   m_CullTransparentMesh: 0
+--- !u!114 &1016509357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1016509353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3cb3f7881fdcb84799f6cf74ac1bedf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ActiveQuestTitle: {fileID: 2107976985}
+  NextChunkTitle: {fileID: 1723489216}
+  NextChunkDistance: {fileID: 278103381}
+  NextChunkModel: {fileID: 2109156478}
+  NextChunkButton: {fileID: 220706082}
 --- !u!1 &1152253054
 GameObject:
   m_ObjectHideFlags: 0
@@ -2769,7 +2787,7 @@ GameObject:
   - component: {fileID: 2109156479}
   - component: {fileID: 2109156480}
   m_Layer: 5
-  m_Name: Model
+  m_Name: ChunkModelContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
