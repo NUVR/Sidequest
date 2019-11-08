@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -37,41 +36,42 @@ public class PanelManager : MonoBehaviour
     void LoadInformationFromStorage()
     {
         Debug.Log(Application.persistentDataPath);
-
+        RestoreInventory(StarterData.STARTER_INVENTORY);
     }
 
     void RestoreInventory(Inventory inventory)
     {
-        if (inventory.ActiveQuest == null)
+        if (!inventory.ActiveQuest.HasValue)
         {
             ActiveQuestTitle.text = "No Quest Selected";
             NextChunkTitle.text = "No Quest Selected";
-            return;
         } else
         {
-            ActiveQuestTitle.text = inventory.ActiveQuest.Title;
+            ActiveQuestTitle.text = inventory.ActiveQuest.Value.Title;
+            Chunk? activeChunk = inventory.GetActiveChunk();
+            if (!activeChunk.HasValue)
+            {
+                NextChunkTitle.text = "No Item Selected";
+            } else
+            {
+                NextChunkTitle.text = activeChunk.Value.Title;
+                SetActiveChunk(activeChunk.Value.Model);
+            }
         }
     }
 
+    void SetActiveChunk(GameObject activeChunkModel)
+    {
+        foreach (int idx in Enumerable.Range(0, NextChunkModel.transform.childCount))
+        {
+            Destroy(NextChunkModel.transform.GetChild(idx));
+        }
 
-}
+        var item = Instantiate(activeChunkModel, Vector3.zero, Quaternion.identity, NextChunkModel.transform);
+        item.SetActive(true);
 
-
-struct Inventory
-{
-    public Quest? ActiveQuest;
-    public int? ActiveChunkIndex;
-}
-
-struct Quest
-{
-    public readonly string Title;
-    public readonly List<Chunk> Chunks;
-}
-
-struct Chunk
-{
-    readonly string Title;
-    readonly GameObject Model;
-    LocationInfo Location;
+        item.transform.localPosition = Vector3.zero;
+        var transformSize = 50 / item.GetComponent<MeshFilter>().mesh.bounds.size.x;
+        item.transform.localScale = new Vector3(transformSize, transformSize, transformSize);
+    }
 }
