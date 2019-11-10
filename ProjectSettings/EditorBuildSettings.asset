@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/GoogleARCore/Examples/ObjectManipulation/Scenes/ObjectManipulation.unity
-    guid: 9dba7e74f4d2b410f90b920f80528d44
+    path: Assets/Scenes/Inventory.unity
+    guid: 19cfc28a3e8664d408fcfad8d48a5ae8
   m_configObjects: {}
