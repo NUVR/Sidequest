@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,11 +15,12 @@ public class PanelManager : MonoBehaviour
     [SerializeField]
     protected GameObject NextChunkModel;
     [SerializeField]
-    protected Button NextChunkButton;
+    protected Button NavigationButton;
 
     // Start is called before the first frame update
     void Start()
     {
+        NavigationButton.enabled = false;
         LoadInformationFromStorage();
     }
 
@@ -28,18 +30,18 @@ public class PanelManager : MonoBehaviour
         
     }
 
-    void SetQuestTitle(string title)
+    void OnDestroy()
     {
-        ActiveQuestTitle.text = title;
+        
     }
 
-    void LoadInformationFromStorage()
+    private void LoadInformationFromStorage()
     {
         Debug.Log(Application.persistentDataPath);
         RestoreInventory(StarterData.STARTER_INVENTORY);
     }
 
-    void RestoreInventory(Inventory inventory)
+    private void RestoreInventory(Inventory inventory)
     {
         if (!inventory.ActiveQuest.HasValue)
         {
@@ -58,9 +60,11 @@ public class PanelManager : MonoBehaviour
                 SetActiveChunk(activeChunk.Value.Model);
             }
         }
+
+        OnInventoryLoad();
     }
 
-    void SetActiveChunk(GameObject activeChunkModel)
+    private void SetActiveChunk(GameObject activeChunkModel)
     {
         foreach (int idx in Enumerable.Range(0, NextChunkModel.transform.childCount))
         {
@@ -73,5 +77,17 @@ public class PanelManager : MonoBehaviour
         item.transform.localPosition = Vector3.zero;
         var transformSize = 50 / item.GetComponent<MeshFilter>().mesh.bounds.size.x;
         item.transform.localScale = new Vector3(transformSize, transformSize, transformSize);
+    }
+
+    private void OnInventoryLoad()
+    {
+        NavigationButton.enabled = true;
+        NavigationButton.onClick.AddListener(OnNextChunkClick);
+    }
+
+    private void OnNextChunkClick()
+    {
+        NavigationButton.enabled = false;
+        SceneLoader.Instance.LoadScene(SceneNames.NAVIGATION);
     }
 }
