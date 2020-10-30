@@ -1,97 +1,64 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Items/Inventory", fileName = "Inventory.asset")]
-[System.Serializable]
-public class Inventory : ScriptableObject {
-    // Saving using unity dev example.
-    // https://bitbucket.org/richardfine/scriptableobjectdemo/src/9a60686609a42fea4d00f5d20ffeb7ae9bc56eb9/Assets/ScriptableObject/GameSession/GameSettings.cs?at=default#GameSettings.cs-16,79,83,87,90
-    private static Inventory _instance;
-    public static Inventory Instance {
-        get {
-            if (!_instance) {
-                Inventory[] tmp = Resources.FindObjectsOfTypeAll<Inventory>();
-                if (tmp.Length > 0) {
-                    _instance = tmp[0];
-                    Debug.Log("Found inventory as: " + _instance);
-                } else {
-                    Debug.Log("Did not find inventory, loading from file or template.");
-                    SaveManager.LoadOrInitializeInventory();
-                }
-            }
+public class Inventory : ScriptableObject
+{
+  private const string saveFileName = "gamesave.save";
 
-            return _instance;
-        }
+  private List<InventoryObject> collectedObjects = new List<InventoryObject>();
+
+  public void LoadGame()
+  {
+    if (File.Exists(Application.persistentDataPath + "/" + saveFileName))
+    {
+      BinaryFormatter bf = new BinaryFormatter();
+      FileStream file = File.Open(Application.persistentDataPath + "/" + saveFileName, FileMode.Open);
+      InventorySave save = (InventorySave)bf.Deserialize(file);
+      file.Close();
+
+      try
+      {
+        save.collectedObjectIds.ForEach(id => collectedObjects.Add(new InventoryObject(ObjectDatabase.Instance.GetItemById(id))));
+      }
+      catch (System.NullReferenceException)
+      {
+        Debug.Log("Failed to load save - skipping");
+      }
+
+      Debug.Log("Game loaded from save");
     }
-
-    public static void InitializeFromDefault() {
-        if (_instance) DestroyImmediate(_instance);
-        _instance = Instantiate((Inventory) Resources.Load("InventoryTemplate"));
-        _instance.hideFlags = HideFlags.HideAndDontSave;
+    else
+    {
+      Debug.Log("Found no save file");
     }
+  }
 
-    public static void LoadFromJSON(string path) {
-        if (_instance) DestroyImmediate(_instance);
-        _instance = ScriptableObject.CreateInstance<Inventory>();
-        JsonUtility.FromJsonOverwrite(System.IO.File.ReadAllText(path), _instance);
-        _instance.hideFlags = HideFlags.HideAndDontSave;
-    }
+  public void SaveGame()
+  {
+    InventorySave save = BuildInventorySave();
 
-    public void SaveToJSON(string path) {
-        Debug.LogFormat("Saving inventory to {0}", path);
-        System.IO.File.WriteAllText(path, JsonUtility.ToJson(this, true));
-    }
+    BinaryFormatter bf = new BinaryFormatter();
+    FileStream file = File.Create(Application.persistentDataPath + "/" + saveFileName);
+    bf.Serialize(file, save);
+    file.Close();
 
-    /* Inventory START */
-    public ItemInstance[] inventory;
+    Debug.Log("Game saved");
+  }
 
-    public bool SlotEmpty(int index) {
-        if (inventory[index] == null || inventory[index].item == null)
-            return true;
+  private InventorySave BuildInventorySave()
+  {
+    InventorySave save = new InventorySave();
+    collectedObjects.ForEach(inventoryObject => save.collectedObjectIds.Add(inventoryObject.GetId()));
 
-        return false;
-    }
+    return save;
+  }
 
-    // Get an item if it exists.
-    public bool GetItem(int index, out ItemInstance item) {
-        // inventory[index] doesn't return null, so check item instead.
-        if (SlotEmpty(index)) {
-            item = null;
-            return false;
-        }
-
-        item = inventory[index];
-        return true;
-    }
-
-    // Remove an item at an index if one exists at that index.
-    public bool RemoveItem(int index) {
-        if (SlotEmpty(index)) {
-            // Nothing existed at the specified slot.
-            return false;
-        }
-
-        inventory[index] = null;
-
-        return true;
-    }
-
-    // Insert an item, return the index where it was inserted.  -1 if error.
-    public int InsertItem(ItemInstance item) {
-        for (int i = 0; i < inventory.Length; i++) {
-            if (SlotEmpty(i)) {
-                inventory[i] = item;
-                return i;
-            }
-        }
-
-        // Couldn't find a free slot.
-        return -1;
-    }
-
-    // Simply save.
-    private void Save() {
-        SaveManager.SaveInventory();
-    }
+  public void AddItem(InteractableObject interactableObject)
+  {
+    collectedObjects.Add(new InventoryObject(interactableObject));
+  }
 }

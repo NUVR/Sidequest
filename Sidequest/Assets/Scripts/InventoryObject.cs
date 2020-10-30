@@ -1,13 +1,18 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class InventoryObject
 {
-  private CollectibleObject collectibleObject;
+  private InteractableObject interactableObject;
 
-  InventoryObject(CollectibleObject collectibleObject)
+  public InventoryObject(InteractableObject interactableObject)
   {
-    this.collectibleObject = collectibleObject;
+    this.interactableObject = interactableObject;
+  }
+
+  public int GetId() {
+    return interactableObject.id;
   }
 }

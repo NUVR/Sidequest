@@ -27,7 +27,7 @@ public class PickUpObject : MonoBehaviour
                     obj.GetComponent<BoxCollider>().enabled = false;
                     string data = "";
                     data += obj.id.ToString() + "," + obj.name + "," + obj.description+","+thumbnail_Unravel(obj.thumbnail)+"|";
-
+                    PlayerPrefs.SetString(obj.id.ToString() + " SaveObject", data);
                     
                 }
             }
@@ -35,6 +35,7 @@ public class PickUpObject : MonoBehaviour
     }
     public string thumbnail_Unravel(Sprite sprite)
     {
-        return "";
+        return sprite.name;
+        
     }
 }
